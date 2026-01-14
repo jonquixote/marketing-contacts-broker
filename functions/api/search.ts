@@ -1,4 +1,4 @@
-import { chromium } from 'playwright-core';
+import { getBrowser } from '../utils/browser';
 import { runCorporateSearch, ScrapedProfile } from '../osint/corporate';
 import { runDuckDuckGoSearch } from '../osint/duckduckgo';
 import { runSmbSearch, SmbProfile } from '../osint/smb';
@@ -112,10 +112,14 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
     // Fallbacks (Bing/DDG) if Google API & Stealth fail
     if (profiles.length === 0) {
       console.log('[API] Primary engine yielded no results. Trying Bing...');
-      const browser = await chromium.launch({ headless: true });
-      const page = await browser.newPage();
-      try { profiles = await runBingSearch({ role: request.role!, company: request.company! }, page); }
-      finally { await browser.close(); }
+      try {
+        const browser = await getBrowser();
+        const page = await browser.newPage();
+        try { profiles = await runBingSearch({ role: request.role!, company: request.company! }, page); }
+        finally { await browser.close(); }
+      } catch (e) {
+        console.error("Failed to launch browser for Bing fallback", e);
+      }
     }
 
     // Verify Emails for Corporate
