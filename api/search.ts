@@ -83,15 +83,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (freshProfiles.length > 0) {
             console.log(`[API] Cache Hit: Found ${freshProfiles.length} fresh profiles.`);
             const enriched = freshProfiles.map((p: any) => ({
-                name: p.name,
-                headline: p.normalized_title,
-                linkedinUrl: p.linkedin_url,
+                name: p.name || p.raw_data?.name,
+                headline: p.raw_data?.headline || p.normalized_title,
+                linkedinUrl: p.linkedin_url || p.raw_data?.linkedinUrl,
                 email: p.raw_data?.email,
-                emailStatus: p.raw_data?.status || 'valid',
-                verificationDetails: 'Cached Result',
+                emailStatus: p.raw_data?.emailStatus || p.raw_data?.status || 'unknown',
+                verificationDetails: p.raw_data?.verificationDetails || 'Cached Result',
                 address: p.raw_data?.address,
                 phone: p.raw_data?.phone,
-                website: p.website,
+                website: p.website || p.raw_data?.website,
                 status: p.status,
                 raw_data: p.raw_data,
                 imageUrl: p.raw_data?.imageUrl,
@@ -169,14 +169,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     if (!foundValid && !enriched.email) enriched.emailStatus = 'not_found';
                 }
                 enriched.raw_data = {
-                    ...profile,
+                    // Core identification
+                    name: profile.name,
+                    headline: profile.headline,
+                    linkedinUrl: profile.linkedinUrl,
+
+                    // Contact info
                     email: enriched.email,
-                    status: enriched.emailStatus,
-                    details: enriched.verificationDetails,
+                    emailStatus: enriched.emailStatus,
+                    verificationDetails: enriched.verificationDetails,
+                    phone: profile.phone,
+
+                    // Profile enrichment
+                    imageUrl: profile.imageUrl,
+                    education: profile.education,
+                    workHistory: profile.workHistory,
+
+                    // Metadata
                     source: 'GoogleAPI',
-                    imageUrl: enriched.imageUrl,
-                    education: enriched.education,
-                    workHistory: enriched.workHistory
+                    scraped_at: new Date().toISOString()
                 };
                 scrapedResults.push(enriched);
             }
@@ -192,12 +203,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const website = p.website || null;
                 const last_verified_at = new Date().toISOString();
                 const raw_data = {
+                    // Core identification
+                    name: p.name,
+                    headline: p.headline,
+                    linkedinUrl: p.linkedinUrl,
+
+                    // Contact info
                     email: p.email,
-                    status: p.emailStatus,
-                    details: p.verificationDetails,
-                    address: p.address,
+                    emailStatus: p.emailStatus,
+                    verificationDetails: p.verificationDetails,
                     phone: p.phone,
-                    row_status: 'active'
+
+                    // Location/Business
+                    address: p.address,
+                    website: p.website,
+
+                    // Profile enrichment
+                    imageUrl: p.imageUrl,
+                    education: p.education,
+                    workHistory: p.workHistory,
+
+                    // Metadata
+                    source: p.raw_data?.source || (isSmb ? 'SMB' : 'Corporate'),
+                    row_status: 'active',
+                    scraped_at: new Date().toISOString()
                 };
 
                 await sql`
