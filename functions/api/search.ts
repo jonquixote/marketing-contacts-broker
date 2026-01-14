@@ -143,23 +143,35 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
         console.log(`[API] Testing ${candidates.length} email permutations for ${profile.name} @ ${domain}`);
 
         let foundValid = false;
-        for (const email of candidates) {
-          const result = await verifyEmail(email);
-          // console.log(`[API] Email ${email} status: ${result.status}`); // Too verbose? keeping for now.
+        const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_VERSION;
 
-          if (result.status === 'valid') {
-            console.log(`[API] VALID EMAIL FOUND: ${email}`);
-            enriched.email = email;
-            enriched.emailStatus = 'valid';
-            enriched.verificationDetails = 'SMTP Handshake Verified';
-            foundValid = true;
-            break;
-          } else if (result.status === 'risky' && !enriched.email) {
-            enriched.email = email;
-            enriched.emailStatus = 'risky';
+        if (isVercel) {
+          // Vercel blocks Port 25. Return best guess immediately to prevent timeout.
+          const bestGuess = candidates[0]; // usually first.last
+          enriched.email = bestGuess;
+          enriched.emailStatus = 'risky';
+          enriched.verificationDetails = 'Inferred (Cloud Mode)';
+          console.log(`[API] Vercel Env: Skipping SMTP. Inferred: ${bestGuess}`);
+        } else {
+          // Local Mode: Attempt Real Verification
+          for (const email of candidates) {
+            const result = await verifyEmail(email);
+            // console.log(`[API] Email ${email} status: ${result.status}`); 
+
+            if (result.status === 'valid') {
+              console.log(`[API] VALID EMAIL FOUND: ${email}`);
+              enriched.email = email;
+              enriched.emailStatus = 'valid';
+              enriched.verificationDetails = 'SMTP Handshake Verified';
+              foundValid = true;
+              break;
+            } else if (result.status === 'risky' && !enriched.email) {
+              enriched.email = email;
+              enriched.emailStatus = 'risky';
+            }
           }
+          if (!foundValid && !enriched.email) enriched.emailStatus = 'not_found';
         }
-        if (!foundValid && !enriched.email) enriched.emailStatus = 'not_found';
       }
       enriched.raw_data = {
         ...profile,

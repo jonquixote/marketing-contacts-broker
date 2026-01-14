@@ -64,6 +64,13 @@ export async function runSmbSearch(target: SmbSearchTarget, _unusedPage?: any): 
         });
 
         console.log(`[Engine B - YP Stealth] Final Results: ${results.length} businesses.`);
+
+        if (results.length === 0) {
+            console.log('[Engine B - YP Stealth] WARNING: 0 Results found. Dumping Page Content for Debugging:');
+            const html = await page.content();
+            console.log(html); // Dump full HTML to Vercel logs
+        }
+
         return results;
 
     } catch (error) {
