@@ -5,7 +5,7 @@
   "main": "functions/api/search.ts",
   "scripts": {
     "test": "ts-node test_e2e.ts",
-    "start": "ts-node server.ts"
+    "dev": "ts-node server.ts"
   },
   "dependencies": {
     "@sparticuz/chromium": "^143.0.4",
@@ -20,12 +20,12 @@
     "googlethis": "^1.8.0",
     "puppeteer-core": "^24.35.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "@types/node": "^20.10.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.3.2"
+    "@types/node": "^20.10.0"
   }
 }
