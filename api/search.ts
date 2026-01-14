@@ -202,7 +202,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
                 await sql`
                 INSERT INTO profiles (name, normalized_title, company, linkedin_url, website, last_verified_at, status, raw_data)
-                VALUES (${p.name}, ${normalized_title}, ${company}, ${linkedin_url}, ${website}, ${last_verified_at}, 'active', ${raw_data})
+                VALUES (${p.name}, ${normalized_title}, ${company}, ${linkedin_url}, ${website}, ${last_verified_at}, 'active', ${JSON.stringify(raw_data)})
                 ON CONFLICT (linkedin_url) 
                 DO UPDATE SET 
                     name = EXCLUDED.name,

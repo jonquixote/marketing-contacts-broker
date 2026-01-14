@@ -29,7 +29,7 @@ async function runTest() {
 
     // 4. Test Main API (with expectation of scrape failure)
     console.log('\n[4] Testing Main API Pipeline...');
-    const request = { role: 'Marketing Director', company: 'Nike' };
+    const request: any = { type: 'corp', role: 'Marketing Director', company: 'Nike' };
     try {
         const results = await handleSearchRequest(request);
         console.log('API Results:', results);

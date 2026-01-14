@@ -8,6 +8,8 @@
     "start": "ts-node server.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
+    "@vercel/node": "^5.5.19",
     "@vercel/postgres": "^0.10.0",
     "axios": "^1.13.2",
     "cheerio": "^1.1.2",

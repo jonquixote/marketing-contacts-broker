@@ -45,7 +45,7 @@ app.get('/api/recent', async (req, res) => {
 
         if (error) throw error;
 
-        const enriched = profiles.map(p => ({
+        const enriched = (profiles || []).map((p: any) => ({
             name: p.name,
             headline: p.normalized_title, // This is actually the bio/headline
             linkedinUrl: p.linkedin_url,

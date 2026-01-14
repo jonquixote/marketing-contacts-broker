@@ -57,12 +57,12 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   // Filter for fresh results
-  const freshProfiles = cachedProfiles?.filter(p => new Date(p.last_verified_at) > thirtyDaysAgo) || [];
+  const freshProfiles = cachedProfiles?.filter((p: any) => new Date(p.last_verified_at) > thirtyDaysAgo) || [];
 
   // If we have fresh results, return them immediately (Save API credits)
   if (freshProfiles.length > 0) {
     console.log(`[API] Cache Hit: Found ${freshProfiles.length} fresh profiles.`);
-    return freshProfiles.map(p => ({
+    return freshProfiles.map((p: any) => ({
       name: p.name,
       headline: p.normalized_title,
       linkedinUrl: p.linkedin_url,
@@ -187,7 +187,7 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
     // If we had cached profiles (stale), check which ones are NOT in the new scraped results
     if (cachedProfiles && cachedProfiles.length > 0) {
       const scrapedIds = new Set(upsertData.map(u => u.linkedin_url));
-      const missingProfiles = cachedProfiles.filter(p => !scrapedIds.has(p.linkedin_url));
+      const missingProfiles = cachedProfiles.filter((p: any) => !scrapedIds.has(p.linkedin_url));
 
       if (missingProfiles.length > 0) {
         console.log(`[API] Flagging ${missingProfiles.length} profiles as missing/removed.`);
