@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIT Intelligence | Zero-Cost B2B Data</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="logo">JIT Intelligence</div>
+    </header>
+
+    <main>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('corp')">Find Professionals</button>
+            <button class="tab-btn" onclick="switchTab('smb')">Find Businesses</button>
+        </div>
+
+        <div class="search-card" id="corp-search">
+            <div class="input-group">
+                <input type="text" id="role-input" placeholder="Job Title (e.g. Marketing Director)">
+                <input type="text" id="company-input" placeholder="Company (e.g. Nike)">
+            </div>
+            <button class="search-btn" onclick="performSearch()">Search Real-Time</button>
+        </div>
+
+        <div class="search-card" id="smb-search" style="display: none;">
+            <div class="input-group">
+                <input type="text" id="business-input" placeholder="Business Type (e.g. Digital Agency)">
+                <input type="text" id="location-input" placeholder="Location (e.g. Austin, TX)">
+            </div>
+            <button class="search-btn" onclick="performSearch()">Scan Local Maps</button>
+        </div>
+
+        <div class="results-area" id="results-container">
+            <!-- Results will be injected here -->
+        </div>
+    </main>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div id="modal-image-container" style="display: none;"></div>
+                <div>
+                    <h2 id="modal-name" style="margin: 0;">Profile Name</h2>
+                    <p id="modal-headline" class="modal-subtitle" style="margin: 0; border: none; padding: 0;">Headline
+                    </p>
+                </div>
+            </div>
+            <div style="border-bottom: 1px solid var(--border); margin-bottom: 2rem;"></div>
+
+            <div class="modal-section">
+                <h3>Contact Intelligence</h3>
+                <div id="modal-contact-info"></div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Raw Data Payload</h3>
+                <pre id="modal-raw-data"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
