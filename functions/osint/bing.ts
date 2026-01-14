@@ -73,3 +73,65 @@ export async function runBingSearch(target: SearchTarget, page: any): Promise<Sc
         return [];
     }
 }
+
+/**
+ * Bing Local Fallback for SMBs
+ * Scrapes generic Bing search results when YellowPages fails.
+ */
+export async function runBingLocalSearch(target: { businessType: string, location: string }, page: any): Promise<any[]> {
+    const { businessType, location } = target;
+    const query = `${businessType} in ${location}`;
+    const searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+
+    console.log(`[Engine A - Bing Local] Executing Fallback: ${query}`);
+
+    // Headers are already set by the caller (smb.ts -> getBrowser) usually, 
+    // but if we reuse the page from smb.ts it has YP headers. 
+    // smb.ts creates a page for YP. FOr this fallback we might get passed that page.
+
+    try {
+        await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+
+        const profiles = await page.evaluate(() => {
+            const results: any[] = [];
+            // Bing Local Pack results usually have specific classes, but we'll target generic organic results too.
+            // Target: Generic List Items
+            const items = document.querySelectorAll('#b_results > li.b_algo');
+
+            items.forEach((item) => {
+                const titleNode = item.querySelector('h2 a');
+                if (titleNode) {
+                    const name = (titleNode as HTMLElement).innerText;
+                    const url = (titleNode as HTMLAnchorElement).href;
+
+                    // Attempt to find snippet for phone/address
+                    const snippetNode = item.querySelector('.b_caption p');
+                    const snippet = snippetNode ? (snippetNode as HTMLElement).innerText : '';
+
+                    // Simple Regex for Phone (US)
+                    const phoneMatch = snippet.match(/(\(\d{3}\)\s?\d{3}-\d{4})|(\d{3}-\d{3}-\d{4})/);
+                    const phone = phoneMatch ? phoneMatch[0] : '';
+
+                    // Address is hard to parse reliably from generic snippet without structured data, 
+                    // so we'll use the location provided as fallback/context.
+
+                    results.push({
+                        name,
+                        address: '', // Snippet parsing is flaky, UI will show name/phone
+                        phone,
+                        website: url,
+                        source: 'BingFallback'
+                    });
+                }
+            });
+            return results;
+        });
+
+        console.log(`[Engine A - Bing Local] Found ${profiles.length} businesses.`);
+        return profiles;
+
+    } catch (error) {
+        console.error(`[Engine A - Bing Local] Failed: ${error}`);
+        return [];
+    }
+}

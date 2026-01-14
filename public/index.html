@@ -4,67 +4,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JIT Intelligence | Zero-Cost B2B Data</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>JIT Intelligence | Zero-Cost B2B Marketing Data</title>
+    <meta name="description"
+        content="Real-time B2B intelligence platform. Find professionals and businesses with verified contact data.">
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 
 <body>
-    <header>
-        <div class="logo">JIT Intelligence</div>
-    </header>
+    <!-- Animated Background -->
+    <div class="bg-mesh"></div>
+    <div class="bg-grid"></div>
 
-    <main>
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('corp')">Find Professionals</button>
-            <button class="tab-btn" onclick="switchTab('smb')">Find Businesses</button>
-        </div>
-
-        <div class="search-card" id="corp-search">
-            <div class="input-group">
-                <input type="text" id="role-input" placeholder="Job Title (e.g. Marketing Director)">
-                <input type="text" id="company-input" placeholder="Company (e.g. Nike)">
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <span class="logo-text">JIT Intelligence</span>
             </div>
-            <button class="search-btn" onclick="performSearch()">Search Real-Time</button>
-        </div>
-
-        <div class="search-card" id="smb-search" style="display: none;">
-            <div class="input-group">
-                <input type="text" id="business-input" placeholder="Business Type (e.g. Digital Agency)">
-                <input type="text" id="location-input" placeholder="Location (e.g. Austin, TX)">
-            </div>
-            <button class="search-btn" onclick="performSearch()">Scan Local Maps</button>
-        </div>
-
-        <div class="results-area" id="results-container">
-            <!-- Results will be injected here -->
-        </div>
-    </main>
-
-    <!-- Profile Modal -->
-    <div id="profile-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                <div id="modal-image-container" style="display: none;"></div>
-                <div>
-                    <h2 id="modal-name" style="margin: 0;">Profile Name</h2>
-                    <p id="modal-headline" class="modal-subtitle" style="margin: 0; border: none; padding: 0;">Headline
-                    </p>
+            <div class="header-actions">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span>Live Data</span>
                 </div>
             </div>
-            <div style="border-bottom: 1px solid var(--border); margin-bottom: 2rem;"></div>
+        </header>
 
-            <div class="modal-section">
-                <h3>Contact Intelligence</h3>
-                <div id="modal-contact-info"></div>
+        <!-- Main Content -->
+        <main>
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1 class="hero-title">
+                    Real-Time <span class="gradient-text">B2B Intelligence</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Find verified professionals and businesses instantly. No subscriptions, no stale data.
+                </p>
+            </section>
+
+            <!-- Search Tabs -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-btn active" id="tab-corp" onclick="switchTab('corp')">
+                        <span class="tab-icon">👤</span>
+                        <span>Professionals</span>
+                    </button>
+                    <button class="tab-btn" id="tab-smb" onclick="switchTab('smb')">
+                        <span class="tab-icon">🏢</span>
+                        <span>Businesses</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="modal-section">
-                <h3>Raw Data Payload</h3>
-                <pre id="modal-raw-data"></pre>
+            <!-- Search Section -->
+            <section class="search-section">
+                <!-- Corporate Search -->
+                <div class="search-card" id="corp-search">
+                    <div class="input-row two-col">
+                        <div class="input-group">
+                            <label class="input-label" for="role-input">Job Title</label>
+                            <input type="text" id="role-input" class="input-field"
+                                placeholder="Marketing Director, VP Sales...">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="company-input">Company</label>
+                            <input type="text" id="company-input" class="input-field"
+                                placeholder="Nike, Apple, Tesla...">
+                        </div>
+                    </div>
+                    <button class="search-btn" id="corp-search-btn" onclick="performSearch()">
+                        <span class="icon">🔍</span>
+                        <span>Find Professionals</span>
+                    </button>
+                </div>
+
+                <!-- SMB Search -->
+                <div class="search-card hidden" id="smb-search">
+                    <div class="input-row two-col">
+                        <div class="input-group">
+                            <label class="input-label" for="business-input">Business Type</label>
+                            <input type="text" id="business-input" class="input-field"
+                                placeholder="Digital Agency, Restaurant...">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="location-input">Location</label>
+                            <input type="text" id="location-input" class="input-field"
+                                placeholder="Austin, TX or New York...">
+                        </div>
+                    </div>
+                    <button class="search-btn" id="smb-search-btn" onclick="performSearch()">
+                        <span class="icon">📍</span>
+                        <span>Find Local Businesses</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <div class="results-header hidden" id="results-header">
+                    <h2 class="results-title">Results</h2>
+                    <span class="results-count" id="results-count">0 found</span>
+                </div>
+                <div class="results-grid stagger-children" id="results-container">
+                    <!-- Results will be injected here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p class="footer-text">
+                Powered by <span class="highlight">JIT Intelligence Engine</span> · Real-time OSINT
+            </p>
+        </footer>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+
+            <div class="modal-header">
+                <div class="modal-avatar" id="modal-avatar">
+                    <span>👤</span>
+                </div>
+                <div class="modal-title-group">
+                    <h2 class="modal-name" id="modal-name">Profile Name</h2>
+                    <p class="modal-headline" id="modal-headline">Headline or description</p>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <!-- Contact Section -->
+                <div class="modal-section">
+                    <h3 class="modal-section-title">Contact Information</h3>
+                    <div class="data-grid" id="modal-contact-info">
+                        <!-- Contact rows injected here -->
+                    </div>
+                </div>
+
+                <!-- Details Section -->
+                <div class="modal-section" id="modal-details-section">
+                    <h3 class="modal-section-title">Additional Details</h3>
+                    <div class="data-grid" id="modal-details-info">
+                        <!-- Detail rows injected here -->
+                    </div>
+                </div>
+
+                <!-- Raw Data Section -->
+                <div class="modal-section">
+                    <h3 class="modal-section-title">Raw Data</h3>
+                    <pre class="modal-raw-data" id="modal-raw-data"></pre>
+                </div>
             </div>
         </div>
     </div>
