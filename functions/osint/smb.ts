@@ -26,6 +26,10 @@ export async function runSmbSearch(target: SmbSearchTarget, _unusedPage?: any): 
     try {
         browser = await getBrowser();
         const page = await browser.newPage();
+
+        // Manual Stealth Headers since plugin is removed for Vercel compatibility
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
         const results = await page.evaluate(() => {
