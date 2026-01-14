@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { chromium } from 'playwright-core';
+import { getBrowser } from '../functions/utils/browser';
 import { sql } from '../functions/utils/db';
 import { runCorporateSearch, ScrapedProfile } from '../functions/osint/corporate';
 import { runDuckDuckGoSearch } from '../functions/osint/duckduckgo';
@@ -133,12 +133,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 // Note: Chromium launch on Vercel requires specific args usually.
                 // We will attempt standard launch, but this may fail on Free Tier without specific configuration.
                 try {
-                    const browser = await chromium.launch({ headless: true });
+                    const browser = await getBrowser();
                     const page = await browser.newPage();
                     try { profiles = await runBingSearch({ role: request.role!, company: request.company! }, page); }
                     finally { await browser.close(); }
                 } catch (e) {
-                    console.error("Failed to launch chromium for Bing fallback", e);
+                    console.error("Failed to launch browser for Bing fallback", e);
                 }
             }
 

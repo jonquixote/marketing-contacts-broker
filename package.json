@@ -8,6 +8,7 @@
     "start": "ts-node server.ts"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^143.0.4",
     "@supabase/supabase-js": "^2.90.1",
     "@vercel/node": "^5.5.19",
     "@vercel/postgres": "^0.10.0",
@@ -17,9 +18,7 @@
     "express": "^4.18.2",
     "google-it": "^1.6.4",
     "googlethis": "^1.8.0",
-    "playwright": "^1.40.0",
-    "playwright-core": "^1.40.0",
-    "puppeteer": "^24.32.0",
+    "puppeteer-core": "^24.35.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },

@@ -1,7 +1,4 @@
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-
-puppeteer.use(StealthPlugin());
+import { getBrowser } from '../utils/browser';
 
 export interface SmbSearchTarget {
     businessType: string;
@@ -25,12 +22,9 @@ export async function runSmbSearch(target: SmbSearchTarget, _unusedPage?: any): 
 
     console.log(`[Engine B - YP Stealth] Executing Search: ${url}`);
 
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
+    let browser;
     try {
+        browser = await getBrowser();
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
@@ -63,7 +57,7 @@ export async function runSmbSearch(target: SmbSearchTarget, _unusedPage?: any): 
         console.error(`[Engine B - YP Stealth] Failed: ${(error as any).message}`);
         return [];
     } finally {
-        await browser.close();
+        if (browser) await browser.close();
     }
 }
 

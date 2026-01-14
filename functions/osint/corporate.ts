@@ -1,3 +1,4 @@
+import { getBrowser } from '../utils/browser';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import axios from 'axios';
@@ -131,10 +132,7 @@ export async function runCorporateSearch(target: SearchTarget): Promise<ScrapedP
 
   console.log(`[Engine A - Stealth] Executing Search: ${query}`);
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  const browser = await getBrowser();
 
   try {
     const page = await browser.newPage();
