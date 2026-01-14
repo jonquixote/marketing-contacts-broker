@@ -1,11 +1,10 @@
-import { Page } from 'playwright-core';
 import { SmbSearchTarget, SmbProfile } from './smb';
 
 /**
  * Engine B (Alternative): YellowPages
  * Scrapes YellowPages.com for local businesses.
  */
-export async function runYellowPagesSearch(target: SmbSearchTarget, page: Page): Promise<SmbProfile[]> {
+export async function runYellowPagesSearch(target: SmbSearchTarget, page: any): Promise<SmbProfile[]> {
     // Query format: https://www.yellowpages.com/search?search_terms=Digital+Agency&geo_location_terms=Austin%2C+TX
     const searchUrl = `https://www.yellowpages.com/search?search_terms=${encodeURIComponent(target.businessType)}&geo_location_terms=${encodeURIComponent(target.location)}`;
 

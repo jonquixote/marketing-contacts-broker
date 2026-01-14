@@ -1,11 +1,10 @@
-import { Page } from 'playwright-core';
 import { SearchTarget, ScrapedProfile } from './corporate';
 
 /**
  * Engine A (Alternative 2): Bing
  * Bing is often less aggressive than Google/DDG if the User-Agent is correct.
  */
-export async function runBingSearch(target: SearchTarget, page: Page): Promise<ScrapedProfile[]> {
+export async function runBingSearch(target: SearchTarget, page: any): Promise<ScrapedProfile[]> {
     const { role, company } = target;
     // Query: site:linkedin.com/in "Role" "Company"
     const query = `site:linkedin.com/in "${role}" "${company}"`;

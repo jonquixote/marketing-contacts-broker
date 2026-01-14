@@ -1,11 +1,10 @@
-import { Page } from 'playwright-core';
 import { SearchTarget, ScrapedProfile } from './corporate';
 
 /**
- * Engine A (Alternative): DuckDuckGo
- * Uses the HTML-only version (html.duckduckgo.com) which is often friendlier to scrapers.
+ * Engine A (Alternative 1): DuckDuckGo
+ * often blocks datacenter IPs immediately.
  */
-export async function runDuckDuckGoSearch(target: SearchTarget, page: Page): Promise<ScrapedProfile[]> {
+export async function runDuckDuckGoSearch(target: SearchTarget, page: any): Promise<ScrapedProfile[]> {
     const { role, company } = target;
     // Dork: site:linkedin.com/in "Role" "Company"
     const query = `site:linkedin.com/in "${role}" "${company}"`;
