@@ -107,7 +107,9 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
 
   } else {
     // Corporate Search
+    console.log(`[API] Starting Corporate Search for Role: ${request.role}, Company: ${request.company}`);
     let profiles = await runCorporateSearch({ role: request.role!, company: request.company! });
+    console.log(`[API] Corporate Search yielded ${profiles.length} profiles.`);
 
     // Fallbacks (Bing/DDG) if Google API & Stealth fail
     if (profiles.length === 0) {
@@ -115,7 +117,10 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
       try {
         const browser = await getBrowser();
         const page = await browser.newPage();
-        try { profiles = await runBingSearch({ role: request.role!, company: request.company! }, page); }
+        try {
+          profiles = await runBingSearch({ role: request.role!, company: request.company! }, page);
+          console.log(`[API] Bing Search yielded ${profiles.length} profiles.`);
+        }
         finally { await browser.close(); }
       } catch (e) {
         console.error("Failed to launch browser for Bing fallback", e);
@@ -124,6 +129,8 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
 
     // Verify Emails for Corporate
     const topProfiles = profiles.slice(0, 5); // Process top 5
+    console.log(`[API] Enriching top ${topProfiles.length} profiles.`);
+
     for (const profile of topProfiles) {
       const enriched: EnrichedProfile = { ...profile };
       const nameParts = profile.name.split(' ');
@@ -133,10 +140,15 @@ export async function handleSearchRequest(request: SearchRequest): Promise<Enric
         const domain = `${request.company!.toLowerCase().replace(/\s+/g, '')}.com`;
         const candidates = generateEmailPermutations({ firstName, lastName, domain });
 
+        console.log(`[API] Testing ${candidates.length} email permutations for ${profile.name} @ ${domain}`);
+
         let foundValid = false;
         for (const email of candidates) {
           const result = await verifyEmail(email);
+          // console.log(`[API] Email ${email} status: ${result.status}`); // Too verbose? keeping for now.
+
           if (result.status === 'valid') {
+            console.log(`[API] VALID EMAIL FOUND: ${email}`);
             enriched.email = email;
             enriched.emailStatus = 'valid';
             enriched.verificationDetails = 'SMTP Handshake Verified';

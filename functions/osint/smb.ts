@@ -27,20 +27,29 @@ export async function runSmbSearch(target: SmbSearchTarget, _unusedPage?: any): 
         browser = await getBrowser();
         const page = await browser.newPage();
 
-        // Manual Stealth Headers since plugin is removed for Vercel compatibility
+        // Manual Stealth Headers
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
+        console.log(`[Engine B - YP Stealth] Navigating to: ${url}`);
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+        const pageTitle = await page.title();
+        const contentLen = (await page.content()).length;
+        console.log(`[Engine B - YP Stealth] Page Loaded. Title: "${pageTitle}", HTML Length: ${contentLen}`);
 
         const results = await page.evaluate(() => {
             const items = document.querySelectorAll('.result');
+            console.log(`[Engine B - YP Stealth] In-Browser: Found ${items.length} .result items`);
+
             const data: any[] = [];
-            items.forEach(item => {
+            items.forEach((item, index) => {
                 const name = item.querySelector('.business-name')?.textContent;
                 const phone = item.querySelector('.phones')?.textContent;
                 const address = item.querySelector('.street-address')?.textContent || '';
                 const locality = item.querySelector('.locality')?.textContent || '';
                 const website = item.querySelector('.links a.track-visit-website')?.getAttribute('href') || '';
+
+                if (!name) console.log(`[Engine B - YP Stealth] Item ${index} missing name`);
 
                 if (name) {
                     data.push({
@@ -54,11 +63,13 @@ export async function runSmbSearch(target: SmbSearchTarget, _unusedPage?: any): 
             return data;
         });
 
-        console.log(`[Engine B - YP Stealth] Found ${results.length} businesses.`);
+        console.log(`[Engine B - YP Stealth] Final Results: ${results.length} businesses.`);
         return results;
 
     } catch (error) {
         console.error(`[Engine B - YP Stealth] Failed: ${(error as any).message}`);
+        // Log stack trace if available
+        if ((error as any).stack) console.error((error as any).stack);
         return [];
     } finally {
         if (browser) await browser.close();
