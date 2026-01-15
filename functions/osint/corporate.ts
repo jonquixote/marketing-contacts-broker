@@ -118,76 +118,102 @@ export async function runCorporateSearch(target: SearchTarget): Promise<ScrapedP
         console.log('[Engine A - API] No results found.');
         return [];
       }
-    } catch (error) {
-      console.error(`[Engine A - API] Failed: ${(error as any).message}`);
-      // Fallthrough to Stealth
-    }
-  } else {
-    console.log('[Engine A] Missing GOOGLE_API_KEY or GOOGLE_CX. Skipping API search.');
-  }
+    } else if (process.env.SERPAPI_KEY) {
+      console.log('[Engine A] GOOGLE_API_KEY missing. Trying SerpAPI...');
+      try {
+        const res = await axios.get('https://serpapi.com/search', {
+          params: {
+            api_key: process.env.SERPAPI_KEY,
+            engine: 'google',
+            q: query,
+            num: 10,
+            gl: 'us',
+            hl: 'en'
+          }
+        });
 
-  // 2. Fallback to Stealth Mode (Likely Blocked, but worth a try if API fails)
-  // Switch to UK Google to potentially bypass US-centric datacenter blocks
-  const searchUrl = `https://www.google.co.uk/search?q=${encodeURIComponent(query)}&hl=en&gl=uk`;
+        if (res.data.organic_results) {
+          let profiles = res.data.organic_results
+            .filter((item: any) => item.link.includes('linkedin.com/in/'))
+            .map((item: any) => ({
+              name: item.title.split(' - ')[0] || 'Unknown',
+              headline: item.snippet || '',
+              linkedinUrl: item.link,
+              imageUrl: item.thumbnail || undefined
+            }));
 
-  console.log(`[Engine A - Stealth] Executing Search: ${query}`);
-
-  const browser = await getBrowser();
-
-  try {
-    const page = await browser.newPage();
-    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-    // Check for CAPTCHA
-    if (await page.$('iframe[src*="google.com/recaptcha"]')) {
-      console.error('[Engine A] CAPTCHA detected despite stealth mode.');
-      throw new Error('Google CAPTCHA detected');
-    }
-
-    // Parse Google SERP
-    const profiles = await page.evaluate(() => {
-      const results: any[] = [];
-      // Generic selector: Find any anchor tag with a LinkedIn profile URL
-      const links = document.querySelectorAll('a[href*="linkedin.com/in/"]');
-
-      links.forEach((link) => {
-        const url = (link as HTMLAnchorElement).href;
-        // Try to find the title in the parent or the link text itself
-        let titleText = (link as HTMLElement).innerText;
-        const h3 = link.querySelector('h3');
-        if (h3) titleText = h3.innerText;
-
-        // Clean up title
-        if (titleText && !url.includes('/dir/') && !url.includes('/jobs/')) {
-          const parts = titleText.split(' - ');
-          const name = parts[0] || 'Unknown';
-          const headline = parts.slice(1).join(' - ').replace('| LinkedIn', '').replace('...', '').trim();
-
-          results.push({
-            name,
-            headline,
-            linkedinUrl: url
-          });
+          console.log(`[Engine A - SerpAPI] Found ${profiles.length} profiles.`);
+          return profiles;
         }
-      });
-      return results;
-    });
-
-    console.log(`[Engine A - Stealth] Found ${profiles.length} profiles.`);
-
-    if (profiles.length === 0) {
-      console.log('[Engine A - Stealth] 0 results. Dumping HTML snippet...');
-      const content = await page.content();
-      console.log(content.substring(0, 1000)); // Log first 1000 chars to identify block/consent page
+      } catch (error) {
+        console.error(`[Engine A - SerpAPI] Failed: ${(error as any).message}`);
+      }
+    } else {
+      console.log('[Engine A] Missing GOOGLE_API_KEY and SERPAPI_KEY. Skipping API search.');
     }
 
-    return profiles;
+    // 2. Fallback to Stealth Mode (Likely Blocked, but worth a try if API fails)
+    // Switch to UK Google to potentially bypass US-centric datacenter blocks
+    const searchUrl = `https://www.google.co.uk/search?q=${encodeURIComponent(query)}&hl=en&gl=uk`;
 
-  } catch (error) {
-    console.error(`[Engine A - Stealth] Failed: ${(error as any).message}`);
-    console.log('[Engine A] NOTE: Corporate search is currently blocked by Google/Bing CAPTCHAs on this IP. An API key or Proxy is required for reliable corporate data.');
-    return [];
-  } finally {
-    await browser.close();
+    console.log(`[Engine A - Stealth] Executing Search: ${query}`);
+
+    const browser = await getBrowser();
+
+    try {
+      const page = await browser.newPage();
+      await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+      // Check for CAPTCHA
+      if (await page.$('iframe[src*="google.com/recaptcha"]')) {
+        console.error('[Engine A] CAPTCHA detected despite stealth mode.');
+        throw new Error('Google CAPTCHA detected');
+      }
+
+      // Parse Google SERP
+      const profiles = await page.evaluate(() => {
+        const results: any[] = [];
+        // Generic selector: Find any anchor tag with a LinkedIn profile URL
+        const links = document.querySelectorAll('a[href*="linkedin.com/in/"]');
+
+        links.forEach((link) => {
+          const url = (link as HTMLAnchorElement).href;
+          // Try to find the title in the parent or the link text itself
+          let titleText = (link as HTMLElement).innerText;
+          const h3 = link.querySelector('h3');
+          if (h3) titleText = h3.innerText;
+
+          // Clean up title
+          if (titleText && !url.includes('/dir/') && !url.includes('/jobs/')) {
+            const parts = titleText.split(' - ');
+            const name = parts[0] || 'Unknown';
+            const headline = parts.slice(1).join(' - ').replace('| LinkedIn', '').replace('...', '').trim();
+
+            results.push({
+              name,
+              headline,
+              linkedinUrl: url
+            });
+          }
+        });
+        return results;
+      });
+
+      console.log(`[Engine A - Stealth] Found ${profiles.length} profiles.`);
+
+      if (profiles.length === 0) {
+        console.log('[Engine A - Stealth] 0 results. Dumping HTML snippet...');
+        const content = await page.content();
+        console.log(content.substring(0, 1000)); // Log first 1000 chars to identify block/consent page
+      }
+
+      return profiles;
+
+    } catch (error) {
+      console.error(`[Engine A - Stealth] Failed: ${(error as any).message}`);
+      console.log('[Engine A] NOTE: Corporate search is currently blocked by Google/Bing CAPTCHAs on this IP. An API key or Proxy is required for reliable corporate data.');
+      return [];
+    } finally {
+      await browser.close();
+    }
   }
-}
