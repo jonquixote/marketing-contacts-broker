@@ -152,6 +152,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     const domain = `${request.company!.toLowerCase().replace(/\s+/g, '')}.com`;
                     const candidates = generateEmailPermutations({ firstName, lastName, domain });
 
+                    /* 
+                    // Email verification disabled as per user request
                     let foundValid = false;
                     for (const email of candidates) {
                         const result = await verifyEmail(email);
@@ -167,6 +169,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         }
                     }
                     if (!foundValid && !enriched.email) enriched.emailStatus = 'not_found';
+                    */
+                    enriched.email = undefined;
+                    enriched.emailStatus = 'skipped';
                 }
                 enriched.raw_data = {
                     // Core identification
